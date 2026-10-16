@@ -2,17 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Tareas extends Model
+class Task extends Model
 {
-    
-use Hasfactory, softDelete
-protected $fillable = [
-'title',
-'descripcion',
-'prioridad'
-]
+    use HasFactory, SoftDeletes;
 
+    protected $table = 'tareas';
 
+    protected $fillable = [
+        'titulo',
+        'descripcion',
+        'prioridad',
+        'fecha_limite',
+    ];
+
+    protected $casts = [
+        'fecha_limite' => 'date:Y-m-d',
+    ];
 }
