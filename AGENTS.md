@@ -1,47 +1,15 @@
-<laravel-boost-guidelines>
-# Laravel Application
+* **`AGENTS.md`**:
+```markdown
+# AGENTS.md - Registro de Asistencia de IA y Criterios Técnicos
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+## 1. Alcance de la Asistencia con IA
+Se empleó el asistente de IA para optimizar tiempos de scaffolding y estructuración inicial:
+- Generación de migraciones con soft delete y estructura del modelo Tareas.
+- Definición de la expresión regular para la detección de la palabra "urgente" insensible a mayúsculas/minúsculas.
+- Configuración de `<TransitionGroup>` en Vue 3 para aislar la animación de salida en el elemento eliminado.
 
-## Prerequisites
-
-Verify that PHP and Composer are available:
-
-```sh
-php -v
-composer -V
-```
-
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
-
-macOS:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
-
-Windows PowerShell:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
-
-Linux:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
-
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+## 2. Decisiones Técnicas y Criterios de Implementación
+- **RF-02 (Precedencia de Backend):** La regla de negocio se ejecuta de forma estricta en el servidor mediante `preg_match('/urgente/i', $request->titulo)`, anulando cualquier prioridad enviada por el cliente.
+- **RF-03 (Validación de Fecha Límite):** Doble capa de validación. En frontend mediante `:min` dinámico y en backend comparando con `Carbon::today()`, respondiendo con código HTTP 400 Bad Request si la fecha es anterior a hoy.
+- **RF-05 (Soft Deletes):** Se implementó el trait `SoftDeletes` en el modelo Eloquent para garantizar la integridad histórica de datos sin borrado físico.
+- **RF-06 (Animaciones Aisladas):** Se utilizó `.fade-tarea-leave-active` sobre elementos individuales vinculados a su ID única, evitando re-renderizados innecesarios del listado completo.

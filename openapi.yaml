@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: TaskAI REST API
+  version: 1.0.0
+  description: Especificación OpenAPI para la prueba técnica del Sistema de Gestión de Tareas Inteligente.
+paths:
+  /api/tasks:
+    get:
+      summary: Listar todas las tareas activas (excluye eliminadas)
+      responses:
+        '200':
+          description: Arreglo de tareas no eliminadas
+    post:
+      summary: Registrar una nueva tarea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [titulo, fecha_limite]
+              properties:
+                titulo:
+                  type: string
+                  example: "Revisión urgente de servidores"
+                descripcion:
+                  type: string
+                  example: "Detalles técnicos de la tarea"
+                prioridad:
+                  type: string
+                  enum: [Baja, Media, Alta]
+                  default: Media
+                fecha_limite:
+                  type: string
+                  format: date
+                  example: "2026-10-25"
+      responses:
+        '201':
+          description: Tarea creada exitosamente
+        '400':
+          description: Fecha límite anterior a la actual
+        '422':
+          description: Error de validación de campos obligatorios
+  /api/tasks/{id}:
+    delete:
+      summary: Eliminación lógica (soft delete) de una tarea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tarea eliminada exitosamente
+        '404':
+          description: Tarea no encontrada
