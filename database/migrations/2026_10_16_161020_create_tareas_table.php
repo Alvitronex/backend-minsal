@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tareas', function (Blueprint $table) {
-            $table->id();
+         $table->id();
+            $table->string("titulo");
+            $table->string("descripcion")->nullable();
+            $table->string("prioridad")->default("Media");
+            $table->softDelete();
             $table->timestamps();
         });
     }
