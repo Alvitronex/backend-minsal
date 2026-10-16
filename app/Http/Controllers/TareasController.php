@@ -2,64 +2,69 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tareas;
+use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 
-class TareasController extends Controller
+class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Task::latest()->get(), 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'titulo'       => 'required|string|max:255',
+            'descripcion'  => 'nullable|string',
+            'prioridad'    => 'nullable|string',
+            'fecha_limite' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error de validacion de datos',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $fechaLimite = Carbon::parse($request->fecha_limite)->startOfDay();
+        $hoy = Carbon::today();
+
+        if ($fechaLimite->lt($hoy)) {
+            return response()->json([
+                'message' => 'La fecha limite no puede ser anterior a la fecha actual, porfavor revise nuevamente'
+            ], 400);
+        }
+
+        $prioridad = $request->input('prioridad', 'Media');
+
+        if (preg_match('/urgente/i', $request->titulo)) {
+            $prioridad = 'Alta';
+        }
+
+        $tarea = Task::create([
+            'titulo'       => $request->titulo,
+            'descripcion'  => $request->descripcion,
+            'prioridad'    => $prioridad,
+            'fecha_limite' => $fechaLimite->toDateString(),
+        ]);
+
+        return response()->json($tarea, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Tareas $tareas)
+    public function destroy(string $id)
     {
-        //
-    }
+        $tarea = Task::find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Tareas $tareas)
-    {
-        //
-    }
+        if (!$tarea) {
+            return response()->json(['message' => 'Tarea no encontrada'], 404);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Tareas $tareas)
-    {
-        //
-    }
+        $tarea->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Tareas $tareas)
-    {
-        //
+        return response()->json(['message' => 'Tarea eliminada exitosamente'], 200);
     }
 }
