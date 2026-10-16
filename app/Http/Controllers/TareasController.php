@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
+use App\Models\Tareas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 
-class TaskController extends Controller
+class TareasController extends Controller
 {
     public function index()
     {
-        return response()->json(Task::latest()->get(), 200);
+        return response()->json(Tareas::latest()->get(), 200);
     }
 
     public function store(Request $request)
@@ -25,7 +25,7 @@ class TaskController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Error de validacion de datos',
+                'message' => 'Error de validación',
                 'errors'  => $validator->errors()
             ], 422);
         }
@@ -35,7 +35,7 @@ class TaskController extends Controller
 
         if ($fechaLimite->lt($hoy)) {
             return response()->json([
-                'message' => 'La fecha limite no puede ser anterior a la fecha actual, porfavor revise nuevamente'
+                'message' => 'La fecha límite no puede ser anterior a la fecha actual.'
             ], 400);
         }
 
@@ -45,7 +45,7 @@ class TaskController extends Controller
             $prioridad = 'Alta';
         }
 
-        $tarea = Task::create([
+        $tarea = Tareas::create([
             'titulo'       => $request->titulo,
             'descripcion'  => $request->descripcion,
             'prioridad'    => $prioridad,
@@ -57,7 +57,7 @@ class TaskController extends Controller
 
     public function destroy(string $id)
     {
-        $tarea = Task::find($id);
+        $tarea = Tareas::find($id);
 
         if (!$tarea) {
             return response()->json(['message' => 'Tarea no encontrada'], 404);
